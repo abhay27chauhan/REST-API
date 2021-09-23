@@ -6,6 +6,7 @@ const { connect } = require("./utils/db");
 const userRouter = require("./resources/user/user.router");
 const itemRouter = require("./resources/item/item.router");
 const listRouter = require("./resources/list/list.router");
+const {signup, signin, protect } = require("./utils/auth");
 
 const app = express();
 
@@ -14,6 +15,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 app.use(morgan('dev'));
 
+app.post('/signup', signup)
+app.post('/signin', signin)
+
+app.use('/api', protect)
 app.use('/api/user', userRouter)
 app.use('/api/item', itemRouter)
 app.use('/api/list', listRouter)
