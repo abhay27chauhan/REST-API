@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const dbUrl= 'mongodb://localhost:27017/api-design'
+const dbUrl= process.env.DB_URL;
 
 const connect = (url = dbUrl, opts = {}) => {
     return mongoose.connect(

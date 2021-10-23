@@ -16,14 +16,22 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
+      minLenght: 8,
       required: true,
     },
     confirmPassword: {
       type: String,
+      minlength: 8,
       required: true,
       validate: function(){
         return this.confirmPassword === this.password
       }
+    },
+    role: {
+      type: String,
+      enum: ["admin", "user"],
+      required: true,
+      default: "user",
     },
     settings: {
       theme: {
@@ -80,5 +88,10 @@ userSchema.methods.checkPassword = function (password) {
     });
   });
 };
+
+userSchema.methods.resetHandler = function (password, confirmPassword) {
+  this.password = password;
+  this.confirmPassword = confirmPassword;
+}
 
 module.exports = mongoose.model("user", userSchema);

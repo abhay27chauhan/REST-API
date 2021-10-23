@@ -1,4 +1,6 @@
 const User = require("../resources/user/user.model");
+const Token = require("../resources/token/token.model");
+const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
 const secrets = {
@@ -18,10 +20,10 @@ const verifyToken = (token) =>
       if (err) return reject(err);
       resolve(payload);
     });
-});
+  });
 
 const signup = async (req, res) => {
-  if (!req.body.email || !req.body.password) {
+  if (!req.body.email || !req.body.password || !req.body.confirmPassword) {
     return res.status(400).send({ message: "need email and password" });
   }
 
@@ -30,7 +32,7 @@ const signup = async (req, res) => {
     const token = newToken(user);
     return res.status(201).send({ token });
   } catch (e) {
-    return res.status(500).end();
+    return res.status(500).send(e);
   }
 };
 
@@ -64,6 +66,45 @@ const signin = async (req, res) => {
   }
 };
 
+const requestForgetPassword = async (req, res) => {
+  if (!req.body.email) {
+    return res.status(400).send({ message: "need email" });
+  }
+
+  try {
+    const user = await User.findOne({ email: req.body.email }).exec();
+
+    if (!user) {
+      return res.status(401).send("user doesn't exits!");
+    }
+
+    let token = await Token.findOne({ userId: user._id });
+    if (token) await token.deleteOne();
+
+    let resetToken = crypto.randomBytes(32).toString("hex");
+
+    await Token.create({
+      userId: user._id,
+      token: resetToken,
+      createdAt: Date.now(),
+    });
+
+    const link = `${clientURL}/forgetPassword?token=${resetToken}&id=${user._id}`;
+
+    sendEmail(user.email, "Forget Password Request", {
+      name: user.name,
+      link: link,
+    });
+
+    return res.status(200).send(link);
+  } catch (e) {
+    console.error(e);
+    res.status(500).end();
+  }
+};
+
+const forgetPassword = () => {}
+
 const protect = async (req, res, next) => {
   const bearer = req.headers.authorization;
 
@@ -93,7 +134,9 @@ const protect = async (req, res, next) => {
 };
 
 module.exports = {
-    signup,
-    signin,
-    protect
-}
+  signup,
+  signin,
+  protect,
+  requestForgetPassword,
+  forgetPassword
+};
