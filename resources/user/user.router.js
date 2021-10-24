@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const { isAuthorized } =require("../../utils/auth");
 const {
   me,
   updateMe,

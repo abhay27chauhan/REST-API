@@ -105,6 +105,19 @@ const requestForgetPassword = async (req, res) => {
 
 const forgetPassword = () => {}
 
+const isAuthorized = (roles) => {
+  return function(req, res, next){
+    const userRole = req.user.role;
+    console.log(userRole);
+    const authorizationStatus = roles.includes(userRole);
+    if(authorizationStatus){
+      next();
+    }else{
+      return res.status(401).send("User does not have required authorization");
+    }
+  }
+}
+
 const protect = async (req, res, next) => {
   const bearer = req.headers.authorization;
 
@@ -137,6 +150,7 @@ module.exports = {
   signup,
   signin,
   protect,
+  isAuthorized,
   requestForgetPassword,
   forgetPassword
 };
