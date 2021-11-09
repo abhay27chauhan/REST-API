@@ -5,13 +5,13 @@ const itemRouter = Router();
 
 itemRouter
 .route('/')
-.get()
-.post()
+.get(controllers.getMany)
+.post(controllers.createOne)
 
 itemRouter
 .route('/:id')
-.get()
-.put()
-.delete()
+.get(controllers.getOne)
+.put(controllers.updateOne)
+.delete(controllers.removeOne)
 
 module.exports = itemRouter;

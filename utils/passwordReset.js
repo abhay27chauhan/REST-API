@@ -28,7 +28,7 @@ const requestPasswordReset = async (user) => {
 };
 
 const resetPassword = async (user, token, password, confirmPassword) => {
-  let passwordResetToken = await Token.findOne({ userId: user._id});
+  let passwordResetToken = await Token.findOne({ userId: user._id });
 
   if (!passwordResetToken) {
     throw new Error("Invalid or expired password reset token");
@@ -43,15 +43,14 @@ const resetPassword = async (user, token, password, confirmPassword) => {
   user.resetHandler(password, confirmPassword);
 
   await user.save();
-  const userUpdated = await User.findById({ _id: user._id });
+  const userUpdated = await User.findById({ _id: user._id })
+    .select("-password")
+    .lean()
+    .exec();
 
-  sendEmail(
-    user.email,
-    "Password Reset Successfully",
-    {
-      name: user.name,
-    },
-  );
+  sendEmail(user.email, "Password Reset Successfully", {
+    name: user.name,
+  });
 
   await passwordResetToken.deleteOne();
 
@@ -60,5 +59,5 @@ const resetPassword = async (user, token, password, confirmPassword) => {
 
 module.exports = {
   requestPasswordReset,
-  resetPassword
+  resetPassword,
 };

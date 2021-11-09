@@ -6,14 +6,14 @@ const listRouter = Router();
 // /api/list
 listRouter
 .route('/')
-.get()
-.post()
+.get(controllers.getMany)
+.post(controllers.createOne)
 
 // /api/list/:id
 listRouter
 .route('/:id')
-.get()
-.put()
-.delete()
+.get(controllers.getOne)
+.put(controllers.updateOne)
+.delete(controllers.removeOne)
 
 module.exports = listRouter;

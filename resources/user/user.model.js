@@ -16,13 +16,13 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      minLenght: 8,
-      required: true,
+      minLenght: [8, "Password must be of min 8 characters long"],
+      required: [true, "Password is required"],
     },
     confirmPassword: {
       type: String,
-      minlength: 8,
-      required: true,
+      minlength: [8, "Confirm password must be of min 8 characters long"],
+      required: [true, "Confirm password is required"],
       validate: function(){
         return this.confirmPassword === this.password
       }

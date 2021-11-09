@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 
 const EMAIL_USERNAME = "chauhan27.abhay@gmail.com";
-const EMAIL_PASSWORD = "ecnzpucgksjsowud"
+const EMAIL_PASSWORD = "emfebmaqvdkcdrwn"
 ;
 const sendEmail = async (email, subject, payload) => {
   try {
@@ -21,7 +21,7 @@ const sendEmail = async (email, subject, payload) => {
         from: EMAIL_USERNAME,
         to: email,
         subject: subject,
-        html: `<h1>${payload.name}</h1><br/><a href=${payload.link}>Link</a>`,
+        html: `<h1>${payload.email}</h1><br/><a href=${payload.link}>Link</a>`,
       };
     };
 

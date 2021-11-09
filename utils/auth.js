@@ -2,11 +2,15 @@ const User = require("../resources/user/user.model");
 const Token = require("../resources/token/token.model");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+const sendEmail = require("./sendEmail");
+const { resetPassword } = require("./passwordReset");
 
 const secrets = {
   jwt: "myjsonsecret",
   jwtExp: "100d",
 };
+
+const clientURL = "http://localhost:3000";
 
 const newToken = (user) => {
   return jwt.sign({ id: user.id }, secrets.jwt, {
@@ -92,31 +96,49 @@ const requestForgetPassword = async (req, res) => {
     const link = `${clientURL}/forgetPassword?token=${resetToken}&id=${user._id}`;
 
     sendEmail(user.email, "Forget Password Request", {
-      name: user.name,
+      email: user.email,
       link: link,
     });
 
-    return res.status(200).send(link);
+    return res.status(200).send({ email: user.email, resetToken });
   } catch (e) {
     console.error(e);
     res.status(500).end();
   }
 };
 
-const forgetPassword = () => {}
+const forgetPassword = async (req, res) => {
+  if (!req.body.password || !req.body.confirmPassword) {
+    return res
+      .status(400)
+      .send({ message: "need password and confirmPassword" });
+  }
+  const user = await User.findOne({ email: req.body.email }).exec();
+  if (!user) {
+    return res.status(401).send("user doesn't exits!");
+  }
+
+  try {
+    const response = await resetPassword(user, req.body.token, req.body.password, req.body.confirmPassword);
+    res.status(200).json(response);
+  } catch (err) {
+    console.error(err);
+    res.status(400).end();
+  }
+};
 
 const isAuthorized = (roles) => {
-  return function(req, res, next){
+  return function (req, res, next) {
     const userRole = req.user.role;
     console.log(userRole);
     const authorizationStatus = roles.includes(userRole);
-    if(authorizationStatus){
+    if (authorizationStatus) {
       next();
-    }else{
+    } else {
       return res.status(401).send("User does not have required authorization");
     }
-  }
-}
+  };
+};
 
 const protect = async (req, res, next) => {
   const bearer = req.headers.authorization;
@@ -152,5 +174,5 @@ module.exports = {
   protect,
   isAuthorized,
   requestForgetPassword,
-  forgetPassword
+  forgetPassword,
 };
