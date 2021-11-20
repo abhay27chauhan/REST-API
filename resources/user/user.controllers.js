@@ -76,7 +76,7 @@ const resetPasswordRequestController = async (req, res) => {
     return res.status(200).json(requestPasswordResetService);
   } catch (e) {
     console.error(e);
-    res.status(400).end();
+    res.status(500).end();
   }
 };
 

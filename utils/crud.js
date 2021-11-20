@@ -34,6 +34,48 @@ const getMany = model => async (req, res) => {
   }
 }
 
+function getManyAdvance(model) {
+  return async function (req, res) {
+      try {
+          let requestPromise;
+
+          // query
+          if (req.query.myQuery) {
+              requestPromise = model.find(req.query.myQuery);
+          } else {
+              requestPromise = model.find();
+          }
+
+          // sort
+          if (req.query.sort) {
+              requestPromise = requestPromise.sort(req.query.sort)
+          }
+
+          // select
+          if (req.query.select) {
+              let params = req.query.select.split("%").join(" ");
+           requestPromise = requestPromise.select(params);
+          }
+          
+          // paginate 
+          let page = Number(req.query.page) || 1;
+          let limit = Number(req.query.limit) || 4;
+          let toSkip = (page - 1) * limit;
+          requestPromise = requestPromise
+              .skip(toSkip)
+              .limit(limit);
+          let elements = await requestPromise;
+          res.status(200).json({
+              data: elements
+          })
+      } catch (err) {
+          res.status(502).json({
+              message: err.message
+          })
+      }
+  }
+}
+
 const createOne = model => async (req, res) => {
   const createdBy = req.user._id
   try {

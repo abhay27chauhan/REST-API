@@ -33,6 +33,10 @@ const userSchema = new mongoose.Schema(
       required: true,
       default: "user",
     },
+    lists: {
+      type: [mongoose.SchemaTypes.ObjectId],
+      ref: "list",
+    },
     settings: {
       theme: {
         type: String,
